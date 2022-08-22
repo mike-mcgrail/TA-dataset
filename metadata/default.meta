@@ -1,8 +1,7 @@
 
-[]
-access = read : [ * ], write : [ admin ]
-export = system
+# Application-level permissions
 
-[views]
-access = read : [ * ], write : [ admin ]
-export = none
+[]
+owner = admin
+access = read : [ * ], write : [ admin, sc_admin ]
+export = system

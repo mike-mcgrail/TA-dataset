@@ -1,13 +1,13 @@
 
 # encoding = utf-8
 # Always put this line at the beginning of this file
-import ta_dataset_declare
+import import_declare_test
 
 import os
 import sys
 
-from alert_actions_base import ModularAlertBase
-import modalert_dataset_event_helper
+from splunktaucclib.alert_actions_base import ModularAlertBase
+from ta_dataset import modalert_dataset_event_helper
 
 class AlertActionWorkerdataset_event(ModularAlertBase):
 

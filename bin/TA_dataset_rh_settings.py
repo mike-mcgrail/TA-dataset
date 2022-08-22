@@ -1,5 +1,5 @@
 
-import ta_dataset_declare
+import import_declare_test
 
 from splunktaucclib.rest_handler.endpoint import (
     field,
@@ -8,9 +8,42 @@ from splunktaucclib.rest_handler.endpoint import (
     MultipleModel,
 )
 from splunktaucclib.rest_handler import admin_external, util
-from splunk_aoblib.rest_migration import ConfigMigrationHandler
+from splunktaucclib.rest_handler.admin_external import AdminExternalHandler
+import logging
 
 util.remove_http_proxy_env_vars()
+
+
+fields_dataset_parameters = [
+    field.RestField(
+        'dataset_environment',
+        required=True,
+        encrypted=False,
+        default='us',
+        validator=None
+    ), 
+    field.RestField(
+        'dataset_log_read_access_key',
+        required=False,
+        encrypted=True,
+        default='',
+        validator=validator.String(
+            max_len=100, 
+            min_len=0, 
+        )
+    ), 
+    field.RestField(
+        'dataset_log_write_access_key',
+        required=False,
+        encrypted=True,
+        default='',
+        validator=validator.String(
+            max_len=100, 
+            min_len=0, 
+        )
+    )
+]
+model_dataset_parameters = RestModel(fields_dataset_parameters, name='dataset_parameters')
 
 
 fields_logging = [
@@ -25,49 +58,71 @@ fields_logging = [
 model_logging = RestModel(fields_logging, name='logging')
 
 
-fields_additional_parameters = [
+fields_proxy = [
     field.RestField(
-        'dataset_eu_environment',
+        'proxy_enabled',
         required=False,
         encrypted=False,
-        default=False,
+        default=None,
         validator=None
     ), 
     field.RestField(
-        'dataset_log_read_access_key',
+        'proxy_url',
         required=False,
-        encrypted=True,
-        default='',
+        encrypted=False,
+        default=None,
         validator=validator.String(
+            max_len=4096, 
             min_len=0, 
-            max_len=8192, 
         )
     ), 
     field.RestField(
-        'dataset_log_write_access_key',
+        'proxy_port',
+        required=False,
+        encrypted=False,
+        default=None,
+        validator=validator.Number(
+            max_val=65535, 
+            min_val=1, 
+        )
+    ), 
+    field.RestField(
+        'proxy_username',
+        required=False,
+        encrypted=False,
+        default=None,
+        validator=validator.String(
+            max_len=50, 
+            min_len=0, 
+        )
+    ), 
+    field.RestField(
+        'proxy_password',
         required=False,
         encrypted=True,
-        default='',
+        default=None,
         validator=validator.String(
-            min_len=0, 
             max_len=8192, 
+            min_len=0, 
         )
     )
 ]
-model_additional_parameters = RestModel(fields_additional_parameters, name='additional_parameters')
+model_proxy = RestModel(fields_proxy, name='proxy')
 
 
 endpoint = MultipleModel(
     'ta_dataset_settings',
     models=[
+        model_dataset_parameters, 
         model_logging, 
-        model_additional_parameters
+        model_proxy
     ],
 )
 
 
 if __name__ == '__main__':
+    logging.getLogger().addHandler(logging.NullHandler())
     admin_external.handle(
         endpoint,
-        handler=ConfigMigrationHandler,
+        handler=AdminExternalHandler,
     )
